@@ -1,11 +1,128 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <title>Flask App</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OpenWeatherApp</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
+
 <body>
-    <h1>Welcome to Flask!</h1>
-    <p>This is a simple Flask app with a structured file organization.</p>
+  <div class="card">
+    <h1>OpenWeather</h1>
+
+    <form id="weatherForm" method="POST" novalidate>
+      <div class="row">
+        <div class="field">
+          <label for="city">City *</label>
+          <input id="city" name="city" type="text" />
+        </div>
+
+        <div class="field">
+          <label for="state">State/Region (optional)</label>
+          <input id="state" name="state" type="text" />
+        </div>
+
+        <div class="field">
+          <label for="country">Country code *</label>
+          <input id="country" name="country" type="text" maxlength="2" placeholder="US, TR, FR..." />
+          <div class="small">Use 2-letter country code (ISO).</div>
+        </div>
+      </div>
+
+      <button type="submit">Get Weather</button>
+
+      <div id="clientError" class="error hidden"></div>
+
+      {% if error_message %}
+        <div class="error">{{ error_message }}</div>
+      {% endif %}
+    </form>
+
+    {% if weather_data %}
+      <div class="result">
+        <h2>{{ weather_data.name }}</h2>
+
+        <img
+          alt="Weather icon"
+          src="https://openweathermap.org/img/wn/{{ weather_data.weather[0].icon }}@2x.png"
+        />
+
+        <div><strong>Conditions:</strong> {{ weather_data.weather[0].description }}</div>
+
+        <div><strong>Temperature (°C):</strong> {{ weather_data.main.temp | round(1) }}</div>
+
+        <div><strong>Feels Like (°C):</strong> {{ weather_data.main.feels_like | round(1) }}</div>
+
+        <div><strong>Humidity (%):</strong> {{ weather_data.main.humidity }}</div>
+
+        <div><strong>Pressure (hPa):</strong> {{ weather_data.main.pressure }}</div>
+
+        <div>
+          <strong>Wind (km/h):</strong>
+          {{ (weather_data.wind.speed * 3.6) | round(1) }}
+        </div>
+
+        <div><strong>Visibility (m):</strong> {{ weather_data.visibility }}</div>
+      </div>
+    {% endif %}
+  </div>
+
+  <script>
+    (function () {
+      const form = document.getElementById("weatherForm");
+      const cityInput = document.getElementById("city");
+      const countryInput = document.getElementById("country");
+      const clientError = document.getElementById("clientError");
+
+      function showError(msg) {
+        clientError.textContent = msg;
+        clientError.classList.remove("hidden");
+      }
+
+      function clearError() {
+        clientError.textContent = "";
+        clientError.classList.add("hidden");
+      }
+
+      function isValidCountryCode(value) {
+        return /^[A-Za-z]{2}$/.test(value);
+      }
+
+      form.addEventListener("submit", function (e) {
+        clearError();
+
+        const city = cityInput.value.trim();
+        const country = countryInput.value.trim();
+
+        if (!city) {
+          e.preventDefault();
+          showError("City is required.");
+          cityInput.focus();
+          return;
+        }
+
+        if (!country) {
+          e.preventDefault();
+          showError("Country code is required.");
+          countryInput.focus();
+          return;
+        }
+
+        if (!isValidCountryCode(country)) {
+          e.preventDefault();
+          showError("Country must be a 2-letter code (e.g., US, TR).");
+          countryInput.focus();
+          return;
+        }
+
+        countryInput.value = country.toUpperCase();
+      });
+
+      [cityInput, countryInput].forEach((el) => {
+        el.addEventListener("input", clearError);
+      });
+    })();
+  </script>
 </body>
 </html>
