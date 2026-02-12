@@ -4,6 +4,7 @@ import requests
 
 main_blueprint = Blueprint("main", __name__)
 
+
 @main_blueprint.route("/", methods=["GET", "POST"])
 def dashboard():
     weather_data = None
@@ -34,7 +35,9 @@ def dashboard():
                     if response.status_code == 200:
                         weather_data = response.json()
                     else:
-                        error_message = "Unable to fetch weather data. Please check your inputs."
+                        error_message = (
+                            "Unable to fetch weather data. Please check your inputs."
+                        )
 
                 except requests.RequestException:
                     error_message = "Network error. Please try again."
