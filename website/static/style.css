@@ -3,6 +3,10 @@ body {
   background: linear-gradient(180deg, #2f3a64 0%, #2a2f55 40%, #24284b 100%) !important;
 }
 
+.location-select {
+  width: 150px;   /* clean, subtle increase */
+}
+
 /* remove the big argon dark strip behind content */
 .min-height-300.bg-dark.position-absolute.w-100 {
   display: none !important;
