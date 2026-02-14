@@ -109,7 +109,7 @@ def dashboard():
 
                 # DEW POINT
                 # Try One Call 3.0 daily.dew_point first
-                # If not accessible / fails, 
+                # If not accessible / fails,
                 # fallback to formula using temp + humidity
                 lat = weather_data.get("coord", {}).get("lat")
                 lon = weather_data.get("coord", {}).get("lon")
