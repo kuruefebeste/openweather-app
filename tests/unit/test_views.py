@@ -57,7 +57,6 @@ def test_post_missing_country(monkeypatch):
     ):
         ctx = views.dashboard()
 
-
     assert ctx["error_message"] == "City and Country are required."
     assert ctx["weather_data"] is None
 
