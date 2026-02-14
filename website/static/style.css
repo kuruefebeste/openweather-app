@@ -61,4 +61,24 @@ select.form-control {
   border: 1px solid rgba(255, 255, 255, 0.18) !important;
 }
 
+.leaflet-control-attribution {
+  background: rgba(0,0,0,0.35) !important;
+  color: rgba(255,255,255,0.75) !important;
+}
+.leaflet-control-attribution a {
+  color: rgba(255,255,255,0.85) !important;
+}
+/* Make Leaflet zoom buttons darker and more visible */
+.leaflet-control-zoom a {
+  background-color: rgba(0, 0, 0, 0.75) !important;
+  color: #ffffff !important;
+  border: none !important;
+}
+.leaflet-control-zoom a:hover {
+  background-color: rgba(0, 0, 0, 0.9) !important;
+  color: #ffffff !important;
+}
 
+.leaflet-control-zoom {
+  box-shadow: none !important;
+}

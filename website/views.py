@@ -32,8 +32,7 @@ def dashboard():
 
     # If user selects a new location
     if request.method == "POST":
-        selected_location = request.form.get(
-            "location", selected_location).strip()
+        selected_location = request.form.get("location", selected_location).strip()
 
     # Split into components
     city, state, country = (selected_location.split(",") + ["", "", ""])[:3]
@@ -110,12 +109,16 @@ def dashboard():
 
                 current_summary = f"It is {w.get('description', '').strip()}."
 
+                # Coords for map + dew point work
+                lat = weather_data.get("coord", {}).get("lat")
+                lon = weather_data.get("coord", {}).get("lon")
+                map_lat = lat
+                map_lon = lon
+
                 # DEW POINT
                 # Try One Call 3.0 daily.dew_point first
                 # If not accessible / fails,
                 # fallback to formula using temp + humidity
-                lat = weather_data.get("coord", {}).get("lat")
-                lon = weather_data.get("coord", {}).get("lon")
 
                 # 1) Attempt API dew point
                 if lat is not None and lon is not None:
@@ -154,14 +157,12 @@ def dashboard():
                     and rh_val is not None
                     and rh_val > 0
                 ):
-
                     # Magnus approximation (T in °C, RH in %)
                     a, b = 17.27, 237.7
                     gamma = (
                         math.log(rh_val / 100.0)
                         + (a * temp_val) / (b + temp_val)
                     )
-
                     dp_calc = (b * gamma) / (a - gamma)
                     dew_point = f"{round(dp_calc)}°"
 
@@ -184,4 +185,6 @@ def dashboard():
         visibility=visibility,
         pressure=pressure,
         dew_point=dew_point,
+        map_lat=map_lat,
+        map_lon=map_lon,
     )
