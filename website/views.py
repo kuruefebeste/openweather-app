@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, request
 import os
 import requests
 from datetime import datetime
+import math
 
 main_blueprint = Blueprint("main", __name__)
 
@@ -65,21 +66,22 @@ def dashboard():
                 # Icon
                 icon_code = w.get("icon")
                 if icon_code:
-                    current_icon_url = (
-                        f"https://openweathermap.org/img/wn/{icon_code}@2x.png"
-                    )
+                    current_icon_url = f"https://openweathermap.org/img/wn/{icon_code}@2x.png"
 
                 # Description
                 current_desc = w.get("main") or w.get("description", "")
 
-                # Temperature
-                temp_c = round(main.get("temp", 0))
-                feels_c = round(main.get("feels_like", 0))
+                # Temperature (keep numeric too for dew point fallback)
+                temp_val = main.get("temp")
+                feels_val = main.get("feels_like")
+                temp_c = round(temp_val or 0)
+                feels_c = round(feels_val or 0)
                 current_temp = f"{temp_c}°C"
                 feels_like = f"{feels_c}°"
 
-                # Other values
-                humidity = f"{main.get('humidity', 0)}%"
+                # Other values (keep numeric humidity too)
+                rh_val = main.get("humidity")
+                humidity = f"{rh_val if rh_val is not None else 0}%"
                 pressure = f"{main.get('pressure', 0)} mb"
 
                 vis_m = weather_data.get("visibility")
@@ -93,19 +95,19 @@ def dashboard():
                 # Local time
                 dt_utc = weather_data.get("dt")
                 tz_offset = weather_data.get("timezone", 0)
-
                 if dt_utc is not None:
                     local_ts = dt_utc + tz_offset
                     current_time = datetime.utcfromtimestamp(local_ts).strftime("%-I:%M %p")
 
                 current_summary = f"It is {w.get('description', '').strip()}."
 
-                # -----------------------
-                # DEW POINT (One Call 3.0 - DAILY)
-                # -----------------------
+                # DEW POINT
+                # Try One Call 3.0 daily.dew_point first
+                # If not accessible / fails, fallback to formula using temp + humidity
                 lat = weather_data.get("coord", {}).get("lat")
                 lon = weather_data.get("coord", {}).get("lon")
 
+                # 1) Attempt API dew point
                 if lat is not None and lon is not None:
                     onecall_url = (
                         "https://api.openweathermap.org/data/3.0/onecall"
@@ -114,18 +116,29 @@ def dashboard():
                         f"&appid={api_key}&units=metric"
                     )
 
-                    onecall_resp = requests.get(onecall_url, timeout=8)
+                    try:
+                        onecall_resp = requests.get(onecall_url, timeout=8)
+                        if onecall_resp.status_code == 200:
+                            onecall = onecall_resp.json()
+                            daily = onecall.get("daily", [])
+                            if daily:
+                                dp = daily[0].get("dew_point")
+                                if dp is not None:
+                                    dew_point = f"{round(dp)}°"
+                        else:
+                            # Not available (401, etc.) -> fallback
+                            print("ONECALL ERROR:", onecall_resp.status_code, onecall_resp.text[:200])
+                    except requests.RequestException:
+                        # Network error on OneCall -> fallback
+                        pass
 
-                    if onecall_resp.status_code == 200:
-                        onecall = onecall_resp.json()
-
-                        daily = onecall.get("daily", [])
-                        if daily:
-                            dp = daily[0].get("dew_point")
-                            if dp is not None:
-                                dew_point = f"{round(dp)}°"
-                    else:
-                        print("ONECALL ERROR:", onecall_resp.status_code, onecall_resp.text[:200])
+                # 2) Fallback formula if dew_point still missing
+                if dew_point is None and temp_val is not None and rh_val is not None and rh_val > 0:
+                    # Magnus approximation (T in °C, RH in %)
+                    a, b = 17.27, 237.7
+                    gamma = math.log(rh_val / 100.0) + (a * temp_val) / (b + temp_val)
+                    dp_calc = (b * gamma) / (a - gamma)
+                    dew_point = f"{round(dp_calc)}°"
 
         except requests.RequestException:
             error_message = "Network error. Please try again."
