@@ -68,7 +68,10 @@ def dashboard():
                 # Icon
                 icon_code = w.get("icon")
                 if icon_code:
-                    current_icon_url = f"https://openweathermap.org/img/wn/{icon_code}@2x.png"
+                    current_icon_url = (
+                    f"https://openweathermap.org/img/wn/"
+                    f"{icon_code}@2x.png"
+                )
 
                 # Description
                 current_desc = w.get("main") or w.get("description", "")
@@ -99,7 +102,8 @@ def dashboard():
                 tz_offset = weather_data.get("timezone", 0)
                 if dt_utc is not None:
                     local_ts = dt_utc + tz_offset
-                    current_time = datetime.utcfromtimestamp(local_ts).strftime("%-I:%M %p")
+                    local_dt = datetime.utcfromtimestamp(local_ts)
+                    current_time = local_dt.strftime("%-I:%M %p")
 
                 current_summary = f"It is {w.get('description', '').strip()}."
 
@@ -129,13 +133,24 @@ def dashboard():
                                     dew_point = f"{round(dp)}°"
                         else:
                             # Not available (401, etc.) -> fallback
-                            print("ONECALL ERROR:", onecall_resp.status_code, onecall_resp.text[:200])
+                            print(
+                                "ONECALL ERROR:",
+                                onecall_resp.status_code,
+                                onecall_resp.text[:200],
+                            )
+
                     except requests.RequestException:
                         # Network error on OneCall -> fallback
                         pass
 
                 # 2) Fallback formula if dew_point still missing
-                if dew_point is None and temp_val is not None and rh_val is not None and rh_val > 0:
+                if (
+                    dew_point is None
+                    and temp_val is not None
+                    and rh_val is not None
+                    and rh_val > 0
+                ):
+
                     # Magnus approximation (T in °C, RH in %)
                     a, b = 17.27, 237.7
                     gamma = math.log(rh_val / 100.0) + (a * temp_val) / (b + temp_val)
