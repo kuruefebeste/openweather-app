@@ -102,9 +102,9 @@ def test_success_dewpoint_from_onecall(monkeypatch):
     monkeypatch.setattr(views.os, "getenv", lambda _k: "fake-key")
 
     weather_json = {
-        "weather": 
+        "weather":
         [{"main": "Clouds", "description": "broken clouds", "icon": "03d"}],
-        "main": 
+        "main":
         {"temp": 10.4, "feels_like": 8.9, "humidity": 80, "pressure": 1000},
         "visibility": 9000,
         "wind": {"speed": 5.0},  # m/s => 18 km/h
@@ -148,8 +148,10 @@ def test_success_dewpoint_fallback_when_onecall_fails(monkeypatch):
     monkeypatch.setattr(views.os, "getenv", lambda _k: "fake-key")
 
     weather_json = {
-        "weather": [{"main": "Rain", "description": "light rain", "icon": "10d"}],
-        "main": {"temp": 20.0, "feels_like": 20.0, "humidity": 50, "pressure": 1012},
+        "weather":
+        [{"main": "Rain", "description": "light rain", "icon": "10d"}],
+        "main":
+        {"temp": 20.0, "feels_like": 20.0, "humidity": 50, "pressure": 1012},
         "coord": {"lat": 1.0, "lon": 2.0},
     }
 
@@ -157,7 +159,7 @@ def test_success_dewpoint_fallback_when_onecall_fails(monkeypatch):
         if "data/2.5/weather" in url:
             return FakeResp(200, weather_json)
         if "data/3.0/onecall" in url:
-            # simulate OneCall not accessible (e.g., 401) 
+            # simulate OneCall not accessible (e.g., 401)
             # -> should fallback formula
             return FakeResp(401, {}, text="unauthorized")
         raise AssertionError("Unexpected URL")
