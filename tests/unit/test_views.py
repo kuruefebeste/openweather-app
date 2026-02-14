@@ -51,8 +51,12 @@ def test_post_missing_country(monkeypatch):
     app.register_blueprint(views.main_blueprint)
 
     with app.test_request_context(
-        "/", method="POST", data={"location": "Waterville,ME,"}):
+        "/",
+        method="POST",
+        data={"location": "Waterville,ME,"},
+    ):
         ctx = views.dashboard()
+
 
     assert ctx["error_message"] == "City and Country are required."
     assert ctx["weather_data"] is None
