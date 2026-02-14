@@ -24,6 +24,9 @@ def dashboard():
     pressure = None
     dew_point = None
 
+    map_lat = None
+    map_lon = None
+
     # Default dropdown selection
     selected_location = "Waterville,ME,US"
 
