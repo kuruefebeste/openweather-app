@@ -32,7 +32,8 @@ def dashboard():
 
     # If user selects a new location
     if request.method == "POST":
-        selected_location = request.form.get("location", selected_location).strip()
+        selected_location = request.form.get(
+            "location", selected_location).strip()
 
     # Split into components
     city, state, country = (selected_location.split(",") + ["", "", ""])[:3]

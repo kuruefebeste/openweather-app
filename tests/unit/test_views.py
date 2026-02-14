@@ -50,7 +50,8 @@ def test_post_missing_country(monkeypatch):
     app = Flask(__name__)
     app.register_blueprint(views.main_blueprint)
 
-    with app.test_request_context("/", method="POST", data={"location": "Waterville,ME,"}):
+    with app.test_request_context(
+        "/", method="POST", data={"location": "Waterville,ME,"}):
         ctx = views.dashboard()
 
     assert ctx["error_message"] == "City and Country are required."
@@ -101,8 +102,10 @@ def test_success_dewpoint_from_onecall(monkeypatch):
     monkeypatch.setattr(views.os, "getenv", lambda _k: "fake-key")
 
     weather_json = {
-        "weather": [{"main": "Clouds", "description": "broken clouds", "icon": "03d"}],
-        "main": {"temp": 10.4, "feels_like": 8.9, "humidity": 80, "pressure": 1000},
+        "weather": 
+        [{"main": "Clouds", "description": "broken clouds", "icon": "03d"}],
+        "main": 
+        {"temp": 10.4, "feels_like": 8.9, "humidity": 80, "pressure": 1000},
         "visibility": 9000,
         "wind": {"speed": 5.0},  # m/s => 18 km/h
         "dt": 1700000000,
@@ -140,7 +143,7 @@ def test_success_dewpoint_from_onecall(monkeypatch):
     assert ctx["current_summary"] == "It is broken clouds."
 
 
-def test_success_dewpoint_fallback_formula_when_onecall_fails(monkeypatch):
+def test_success_dewpoint_fallback_when_onecall_fails(monkeypatch):
     _capture_template_context(monkeypatch)
     monkeypatch.setattr(views.os, "getenv", lambda _k: "fake-key")
 
@@ -154,7 +157,8 @@ def test_success_dewpoint_fallback_formula_when_onecall_fails(monkeypatch):
         if "data/2.5/weather" in url:
             return FakeResp(200, weather_json)
         if "data/3.0/onecall" in url:
-            # simulate OneCall not accessible (e.g., 401) -> should fallback formula
+            # simulate OneCall not accessible (e.g., 401) 
+            # -> should fallback formula
             return FakeResp(401, {}, text="unauthorized")
         raise AssertionError("Unexpected URL")
 

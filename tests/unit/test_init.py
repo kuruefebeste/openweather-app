@@ -31,7 +31,8 @@ def test_create_app_sets_secret_key_and_registers_blueprint():
     assert isinstance(app, Flask)
     assert app.config["SECRET_KEY"] == "dev-secret-key"
 
-    # Blueprint registration should create the "/" rule and endpoint "main.dashboard"
+    # Blueprint registration should create 
+    # the "/" rule and endpoint "main.dashboard"
     rules = [r.rule for r in app.url_map.iter_rules()]
     endpoints = [r.endpoint for r in app.url_map.iter_rules()]
 
