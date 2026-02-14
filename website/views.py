@@ -69,9 +69,9 @@ def dashboard():
                 icon_code = w.get("icon")
                 if icon_code:
                     current_icon_url = (
-                    f"https://openweathermap.org/img/wn/"
-                    f"{icon_code}@2x.png"
-                )
+                        f"https://openweathermap.org/img/wn/"
+                        f"{icon_code}@2x.png"
+                    )
 
                 # Description
                 current_desc = w.get("main") or w.get("description", "")
@@ -109,7 +109,8 @@ def dashboard():
 
                 # DEW POINT
                 # Try One Call 3.0 daily.dew_point first
-                # If not accessible / fails, fallback to formula using temp + humidity
+                # If not accessible / fails, 
+                # fallback to formula using temp + humidity
                 lat = weather_data.get("coord", {}).get("lat")
                 lon = weather_data.get("coord", {}).get("lon")
 
@@ -153,7 +154,11 @@ def dashboard():
 
                     # Magnus approximation (T in °C, RH in %)
                     a, b = 17.27, 237.7
-                    gamma = math.log(rh_val / 100.0) + (a * temp_val) / (b + temp_val)
+                    gamma = (
+                        math.log(rh_val / 100.0)
+                        + (a * temp_val) / (b + temp_val)
+                    )
+
                     dp_calc = (b * gamma) / (a - gamma)
                     dew_point = f"{round(dp_calc)}°"
 
